@@ -6,61 +6,59 @@
 // #targetengine "session"
 
 /////////////////////////////////////////////////////////////////////////////
-// Library
+// LIBRARY
 /////////////////////////////////////////////////////////////////////////////
 
-// return array of active document items
-function getDocumentElements(setName) {
-  var doc = app.activeDocument;
-  var result = [];
+// XMP
 
-  for (var i = 0; i < doc[setName].length; i++) {
-    result.push(doc[setName][i]);
+function loadXMPLibrary() {
+  // load the XMPScript library
+  if (!ExternalObject.AdobeXMPScript) {
+    try {
+      ExternalObject.AdobeXMPScript = new ExternalObject("lib:AdobeXMPScript");
+    } catch (e) {
+      alert("Unable to load the AdobeXMPScript library!");
+      return false;
+    }
   }
+  return true;
+}
 
+function unloadXMPLibrary() {
+  // unload the XMPScript library
+  if (ExternalObject.AdobeXMPScript) {
+    try {
+      ExternalObject.AdobeXMPScript.unload();
+      ExternalObject.AdobeXMPScript = undefined;
+    } catch (e) {
+      alert("Unable to unload the AdobeXMPScript library!");
+    }
+  }
+}
+
+// My functions
+
+function getSwatch(subStr) {
+  // testuje vyskyt znaku "^", vrati swatch s orezanym menom -3 znaky z lava
+  var list = app.activeDocument.swatches;
+  var result = {};
+  var cutSubStr = "";
+  if (subStr.toString().charAt(2) == String.fromCharCode(94)) {
+    cutSubStr = subStr.toString().substr(3);
+    subStr = cutSubStr;
+  }
+  for (var i = 0; i < list.length; i++) {
+    if (RegExp(subStr).test(list[i].name)) {
+      list[i].name = subStr;
+      result = list[i];
+      break;
+    }
+  }
   return result;
 }
-/* argument "setName" values:
-    "assets": "[Assets]",
-    "artboards": "[Artboards]",
-    "compoundPathItems": "[CompoundPathItems]",
-    "layers": "[Layers]",
-    "pageItems": "[PageItems]",
-    "pathItems": "[PathItems]",
-    "tags": "[Tags]",
-    "views": "[Views]",
-    "rasterItems": "[RasterItems]",
-    "placedItems": "[PlacedItems]",
-    "embeddedItems": "[EmbeddedItems]",
-    "meshItems": "[MeshItems]",
-    "pluginItems": "[PluginItems]",
-    "graphItems": "[GraphItems]",
-    "nonNativeItems": "[NonNativeItems]",
-    "groupItems": "[GroupItems]",
-    "textFrames": "[TextFrames]",
-    "stories": "[Stories]",
-    "characterStyles": "[CharacterStyles]",
-    "paragraphStyles": "[ParagraphStyles]",
-    "listStyles": "[ListStyles]",
-    "swatches": "[Swatches]",
-    "swatchGroups": "[SwatchGroups]",
-    "gradients": "[Gradients]",
-    "patterns": "[Patterns]",
-    "spots": "[Spots]",
-    "symbols": "[Symbols]",
-    "symbolItems": "[SymbolItems]",
-    "brushes": "[Brushes]",
-    "graphicStyles": "[GraphicStyles]",
-    "variables": "[Variables]",
-    "dataSets": "[DataSets]",
-    "legacyTextItems": "[LegacyTextItems]",
-    "symmetryRepeatItems": "[SymmetryRepeatItems]",
-    "radialRepeatItems": "[RadialRepeatItems]",
-    "gridRepeatItems": "[GridRepeatItems]"
-*/
 
-// apply callback function on all items of array
 function forAll(array, callBack) {
+  // apply callback function on all items of array
   for (var i = 0; i < array.length; i++) {
     callBack(array[i]);
   }
